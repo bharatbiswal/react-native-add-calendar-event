@@ -419,9 +419,10 @@ RCT_EXPORT_METHOD(presentEventEditingDialog:(NSDictionary *)options resolver:(RC
         UITableViewCell *cell=[tblView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:2]];
         cell.userInteractionEnabled=false;
         
+        // Christian says make URL editable
         // Disable URL change
-        UITableViewCell *cell2=[tblView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:4]];
-        cell2.userInteractionEnabled=false;
+        //UITableViewCell *cell2=[tblView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:4]];
+        //cell2.userInteractionEnabled=false;
     }
 }
 
