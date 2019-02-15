@@ -147,6 +147,7 @@ RCT_EXPORT_METHOD(presentEventCreatingDialog:(NSDictionary *)options resolver:(R
         EKEventEditViewController *controller = [[EKEventEditViewController alloc] init];
         controller.event = event;
         controller.eventStore = [weakSelf getEventStoreInstance];
+        controller.delegate = weakSelf;
         controller.editViewDelegate = weakSelf;
         [weakSelf assignNavbarColorsTo:controller.navigationBar];
         [weakSelf presentViewController:controller];
@@ -270,12 +271,31 @@ RCT_EXPORT_METHOD(presentEventEditingDialog:(NSDictionary *)options resolver:(RC
 
         if (refCalendar == nil) {
             // create custome calendar
-            refCalendar = [EKCalendar calendarsForEntityType:EKEntityTypeEvent
-             eventStore:eventStore];
+            refCalendar = [EKCalendar calendarForEntityType:EKEntityTypeEvent eventStore:eventStore];
             refCalendar.title = customCalName;
             refCalendar.CGColor=[UIColor colorWithRed:239.0f/255.0f green:150.0f/255.0f blue:196.0f/255.0f alpha:1.0f].CGColor;
 
-            [eventStore saveCalendar:refCalendar commit:YES error:nil];
+            // Iterate over all sources in the event store and look for the local source
+            EKSource *theSource = nil;
+            for (EKSource *source in eventStore.sources) {
+                if (source.sourceType == EKSourceTypeLocal) {
+                    theSource = source;
+                    break;
+                }
+            }
+            if (theSource) {
+                refCalendar.source = theSource;
+            } else {
+                NSLog(@"Error: Local source not available");
+            }
+            
+            NSError * err = nil;
+            BOOL res = [eventStore saveCalendar:refCalendar commit:YES error:&err];
+            if (res) {
+                NSLog(@"Saved calendar to event store.");
+            } else {
+                NSLog(@"Error saving calendar: %@.", err);
+            }
         }
     }
 
@@ -329,6 +349,7 @@ RCT_EXPORT_METHOD(presentEventEditingDialog:(NSDictionary *)options resolver:(RC
                  [weakSelf resolveWithAction:CANCELED];
              } else if (action == EKEventEditViewActionSaved) {
                  EKEvent *evt = controller.event;
+                 NSLog(@"%@",evt);
                  NSDictionary *params = @{
                                           @"eventIdentifier":evt.eventIdentifier,
                                           @"calendarItemIdentifier":evt.calendarItemIdentifier,
@@ -379,6 +400,24 @@ RCT_EXPORT_METHOD(presentEventEditingDialog:(NSDictionary *)options resolver:(RC
     if (self.resolver) {
         self.resolver(result);
         [self resetPromises];
+    }
+}
+    
+- (void)navigationController:(UINavigationController *)navigationController willShowViewController:(UIViewController *)viewController animated:(BOOL)animated {
+    if ([viewController isKindOfClass:[UITableViewController class]]) {
+        
+        UITableView *tblView=((UITableViewController*)viewController).tableView;
+//        tblView.backgroundColor=[UIColor redColor];
+        
+        //Here you got the tableView now you can change everthing related to tableView.................
+        
+        // Disable calendar change
+        UITableViewCell *cell=[tblView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:2]];
+        cell.userInteractionEnabled=false;
+        
+        // Disable URL change
+        UITableViewCell *cell2=[tblView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:4]];
+        cell2.userInteractionEnabled=false;
     }
 }
 

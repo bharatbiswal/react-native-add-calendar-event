@@ -6,6 +6,6 @@
 #import <React/RCTUIManager.h>
 #import <React/RCTUtils.h>
 
-@interface AddCalendarEvent : NSObject <RCTBridgeModule, EKEventEditViewDelegate, EKEventViewDelegate>
+@interface AddCalendarEvent : NSObject <RCTBridgeModule, EKEventEditViewDelegate, EKEventViewDelegate, UINavigationControllerDelegate>
 
 @end
