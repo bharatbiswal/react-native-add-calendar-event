@@ -260,7 +260,7 @@ RCT_EXPORT_METHOD(presentEventEditingDialog:(NSDictionary *)options resolver:(RC
     NSString * customCalName = [RCTConvert NSString:options[_customCalendarName]];
     if ((customCalName != nil) && (customCalName.length > 0)) {
         // Check if Calendar already exists
-        NSArray * cals = [eventStore calendarsForEntityType:EKEntityType.EKEntityTypeEvent];
+        NSArray * cals = [eventStore calendarsForEntityType:EKEntityTypeEvent];
         for (EKCalendar * aCal in cals) {
             if ([aCal.title caseInsensitiveCompare:customCalName] == NSOrderedSame) {
                 refCalendar = aCal;
@@ -270,7 +270,7 @@ RCT_EXPORT_METHOD(presentEventEditingDialog:(NSDictionary *)options resolver:(RC
 
         if (refCalendar == nil) {
             // create custome calendar
-            refCalendar = [EKCalendar calendarsForEntityType:EKEntityType.EKEntityTypeEvent
+            refCalendar = [EKCalendar calendarsForEntityType:EKEntityTypeEvent
              eventStore:eventStore];
             refCalendar.title = customCalName;
             refCalendar.CGColor=[UIColor colorWithRed:239.0f/255.0f green:150.0f/255.0f blue:196.0f/255.0f alpha:1.0f].CGColor;
