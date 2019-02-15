@@ -46,6 +46,7 @@ static NSString *const RESPONDED = @"RESPONDED";
 }
 
 static NSString *const _eventId = @"eventId";
+static NSString *const _customCalendarName = @"customCalendarName";
 static NSString *const _title = @"title";
 static NSString *const _location = @"location";
 static NSString *const _startDate = @"startDate";
@@ -251,9 +252,36 @@ RCT_EXPORT_METHOD(presentEventEditingDialog:(NSDictionary *)options resolver:(RC
 }
 
 - (EKEvent *)createNewEventInstance {
-    EKEvent *event = [EKEvent eventWithEventStore: [self getEventStoreInstance]];
+    EKEventStore *eventStore = [self getEventStoreInstance];
+    EKEvent *event = [EKEvent eventWithEventStore: eventStore];
     NSDictionary *options = _eventOptions;
 
+    EKCalendar * refCalendar = nil;
+    NSString * customCalName = [RCTConvert NSString:options[_customCalendarName]];
+    if ((customCalName != nil) && (customCalName.length > 0)) {
+        // Check if Calendar already exists
+        NSArray * cals = [eventStore calendarsForEntityType:EKEntityType.EKEntityTypeEvent];
+        for (EKCalendar * aCal in cals) {
+            if ([aCal.title caseInsensitiveCompare:customCalName] == NSOrderedSame) {
+                refCalendar = aCal;
+                break;
+            }
+        }
+
+        if (refCalendar == nil) {
+            // create custome calendar
+            refCalendar = [EKCalendar calendarsForEntityType:EKEntityType.EKEntityTypeEvent
+             eventStore:eventStore];
+            refCalendar.title = customCalName;
+            refCalendar.CGColor=[UIColor colorWithRed:239.0f/255.0f green:150.0f/255.0f blue:196.0f/255.0f alpha:1.0f].CGColor;
+
+            [eventStore saveCalendar:refCalendar commit:YES error:nil];
+        }
+    }
+
+    if (refCalendar != nil) {
+        event.calendar = refCalendar;
+    }
     event.title = [RCTConvert NSString:options[_title]];
     event.location = options[_location] ? [RCTConvert NSString:options[_location]] : nil;
     

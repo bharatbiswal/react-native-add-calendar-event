@@ -8,6 +8,12 @@ declare module "react-native-add-calendar-event" {
   }
 
   interface CreateOptions {
+    /**
+     * Calendar name to which event will be added.
+     * If not spcified, default calendar will be used
+     */
+    customCalendarName?: string;
+
     title?: string;
     /**
      * in UTC, format: 'YYYY-MM-DDTHH:mm:ss.SSSZ'
