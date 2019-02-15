@@ -254,7 +254,6 @@ RCT_EXPORT_METHOD(presentEventEditingDialog:(NSDictionary *)options resolver:(RC
 
 - (EKEvent *)createNewEventInstance {
     EKEventStore *eventStore = [self getEventStoreInstance];
-    EKEvent *event = [EKEvent eventWithEventStore: eventStore];
     NSDictionary *options = _eventOptions;
 
     EKCalendar * refCalendar = nil;
@@ -283,6 +282,9 @@ RCT_EXPORT_METHOD(presentEventEditingDialog:(NSDictionary *)options resolver:(RC
                     break;
                 }
             }
+            if (theSource == nil) {
+                theSource = [[eventStore defaultCalendarForNewEvents] source];
+            }
             if (theSource) {
                 refCalendar.source = theSource;
             } else {
@@ -298,6 +300,8 @@ RCT_EXPORT_METHOD(presentEventEditingDialog:(NSDictionary *)options resolver:(RC
             }
         }
     }
+
+    EKEvent *event = [EKEvent eventWithEventStore: eventStore];
 
     if (refCalendar != nil) {
         event.calendar = refCalendar;
