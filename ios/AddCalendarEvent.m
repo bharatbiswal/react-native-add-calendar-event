@@ -297,12 +297,19 @@ RCT_EXPORT_METHOD(presentEventEditingDialog:(NSDictionary *)options resolver:(RC
                 NSLog(@"Saved calendar to event store.");
             } else {
                 NSLog(@"Error saving calendar: %@.", err);
+                
+                // Default to default calendar
+                refCalendar = [eventStore defaultCalendarForNewEvents];
             }
         }
     }
 
     EKEvent *event = [EKEvent eventWithEventStore: eventStore];
-
+    
+    // Default let the alarm be at time of event
+    event.alarms = [NSArray arrayWithObject:
+                    [EKAlarm alarmWithRelativeOffset: 0]];
+    
     if (refCalendar != nil) {
         event.calendar = refCalendar;
     }
@@ -395,7 +402,7 @@ RCT_EXPORT_METHOD(presentEventEditingDialog:(NSDictionary *)options resolver:(RC
 }
 
 - (void)resolveWithAction: (NSString *)action andParams: (NSDictionary *) params {
-    NSMutableDictionary *extendedArgs = [params mutableCopy];
+     NSMutableDictionary *extendedArgs = [params mutableCopy];
     [extendedArgs setObject:action forKey:@"action"];
     [self resolvePromise: extendedArgs];
 }
@@ -410,14 +417,15 @@ RCT_EXPORT_METHOD(presentEventEditingDialog:(NSDictionary *)options resolver:(RC
 - (void)navigationController:(UINavigationController *)navigationController willShowViewController:(UIViewController *)viewController animated:(BOOL)animated {
     if ([viewController isKindOfClass:[UITableViewController class]]) {
         
-        UITableView *tblView=((UITableViewController*)viewController).tableView;
+        //UITableView *tblView=((UITableViewController*)viewController).tableView;
 //        tblView.backgroundColor=[UIColor redColor];
         
         //Here you got the tableView now you can change everthing related to tableView.................
         
+        // Bharat: Allow user to make calendar change
         // Disable calendar change
-        UITableViewCell *cell=[tblView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:2]];
-        cell.userInteractionEnabled=false;
+        //UITableViewCell *cell=[tblView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:2]];
+        //cell.userInteractionEnabled=false;
         
         // Christian says make URL editable
         // Disable URL change
